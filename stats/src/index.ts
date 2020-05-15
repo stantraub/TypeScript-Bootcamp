@@ -1,28 +1,14 @@
-import fs from 'fs'
+import { MatchReader} from './MatchReader'
+import { CsvFileReader } from './CsvFileReader'
+import { ConsoleReport } from './reportTargets/ConsoleReport'
+import { WinsAnalysis } from './analyzers/WinsAnalysis'
+import { Summary } from './Summary'
+import { HtmlReport } from './reportTargets/HtmlReport'
+// Create an instance of MatchReader and pass in something satisfying the 'DataReader' interface
 
-const matches = fs.readFileSync('football.csv', { 
-    encoding: 'utf-8'
-}).split('\n')
-.map((row: string): string[] => {
-    return row.split(',')
-})
+const matchReader = MatchReader.fromCsv('football.csv')
+matchReader.load()
 
-// enum - enumeration
-enum MatchResult {
-    HomeWin = 'H',
-    AwayWin ="A",
-    Draw = 'D'
-}
+const summary = Summary.winsAnalysisWithHtmlReport('Man United')
 
-
-let manUnitedWins = 0
-
-for (let match of matches) {
-    if (match[1] === 'Man United' && match[5] === MatchResult.HomeWin) {
-        manUnitedWins++
-    } else if (match[2] === 'Man United' && match[5] === MatchResult.AwayWin) {
-        manUnitedWins++
-    }
-}
-
-console.log(`Man United won ${manUnitedWins} games`)
+summary.buildAndPrintReport(matchReader.matches)
